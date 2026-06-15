@@ -33,12 +33,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Upload } from '@lucide/vue'
 import { uploadImage } from '../api/index.js'
 
 const props = defineProps({ adminKey: String })
 const emit = defineEmits(['close', 'uploaded'])
+
+onMounted(() => document.body.style.overflow = 'hidden')
+onUnmounted(() => document.body.style.overflow = '')
 
 const file = ref(null)
 const preview = ref('')
