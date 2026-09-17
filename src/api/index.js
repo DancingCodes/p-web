@@ -25,6 +25,14 @@ export function getVideoList(pageNo = 1, pageSize = 20, category = 'all') {
   return api.get('/video/list', { params: { pageNo, pageSize, category } })
 }
 
+export function getImageDetail(id) {
+  return api.get('/image/detail', { params: { id } })
+}
+
+export function getVideoDetail(id) {
+  return api.get('/video/detail', { params: { id } })
+}
+
 export function uploadImage(file, { name, category }, adminKey) {
   const form = new FormData()
   form.append('file', file)
@@ -42,6 +50,29 @@ export function uploadVideo(file, cover, { name, category }, adminKey) {
   form.append('name', name || '')
   form.append('category', category)
   return api.post('/video/upload', form, {
+    headers: { 'X-Admin-Key': adminKey },
+  })
+}
+
+export function updateImage(id, { name, category, file }, adminKey) {
+  const form = new FormData()
+  form.append('id', id)
+  form.append('name', name || '')
+  form.append('category', category)
+  if (file) form.append('file', file)
+  return api.post('/image/update', form, {
+    headers: { 'X-Admin-Key': adminKey },
+  })
+}
+
+export function updateVideo(id, { name, category, file, cover }, adminKey) {
+  const form = new FormData()
+  form.append('id', id)
+  form.append('name', name || '')
+  form.append('category', category)
+  if (file) form.append('file', file)
+  if (cover) form.append('cover', cover)
+  return api.post('/video/update', form, {
     headers: { 'X-Admin-Key': adminKey },
   })
 }

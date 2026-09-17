@@ -1,6 +1,6 @@
 <template>
   <div class="media-card" @click="$emit('click')">
-    <div class="media-cover">
+    <div class="media-cover" :class="{ 'is-video': type === 'video' }">
       <van-image
         v-if="type === 'image'"
         width="100%"
@@ -10,6 +10,7 @@
       <template v-else>
         <van-image
           width="100%"
+          height="100%"
           fit="cover"
           :src="item.cover_url"
           :alt="displayName"
@@ -19,15 +20,14 @@
         </div>
       </template>
 
-      <button
-        v-if="admin"
-        type="button"
-        class="delete-btn"
-        aria-label="删除"
-        @click.stop="$emit('delete')"
-      >
-        <van-icon name="delete-o" size="16" />
-      </button>
+      <div v-if="admin" class="admin-actions">
+        <button type="button" class="action-btn" aria-label="编辑" @click.stop="$emit('edit')">
+          <van-icon name="edit" size="16" />
+        </button>
+        <button type="button" class="action-btn" aria-label="删除" @click.stop="$emit('delete')">
+          <van-icon name="delete-o" size="16" />
+        </button>
+      </div>
     </div>
 
     <div v-if="displayName" class="media-name">{{ displayName }}</div>
@@ -42,7 +42,7 @@ const props = defineProps({
   type: { type: String, default: 'image' },
   admin: Boolean,
 })
-defineEmits(['click', 'delete'])
+defineEmits(['click', 'edit', 'delete'])
 
 const displayName = computed(() => {
   const name = props.item?.name
@@ -54,17 +54,39 @@ const displayName = computed(() => {
 <style scoped>
 .media-card {
   break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
   margin-bottom: 12px;
+  padding: 8px;
   overflow: hidden;
   border-radius: 14px;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(31, 36, 33, 0.04);
+  box-shadow: 0 1px 2px rgba(31, 36, 33, 0.06);
 }
 
 .media-cover {
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
   background: #efe8dc;
+}
+
+.media-cover.is-video {
+  aspect-ratio: 3 / 4;
+}
+
+.media-cover :deep(.van-image) {
+  display: block;
+  width: 100%;
+}
+
+.media-cover.is-video :deep(.van-image) {
+  height: 100%;
+}
+
+.media-cover :deep(img) {
+  display: block;
+  width: 100%;
 }
 
 .play-mask {
@@ -84,10 +106,15 @@ const displayName = computed(() => {
   -webkit-backdrop-filter: blur(4px);
 }
 
-.delete-btn {
+.admin-actions {
   position: absolute;
   top: 8px;
   right: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
   width: 28px;
   height: 28px;
   border: none;
@@ -103,7 +130,7 @@ const displayName = computed(() => {
 }
 
 .media-name {
-  padding: 10px 12px 12px;
+  padding: 8px 2px 2px;
   font-size: 13px;
   line-height: 1.4;
   color: #3a3a34;

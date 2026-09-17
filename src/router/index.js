@@ -2,17 +2,24 @@ import { createRouter, createWebHistory } from 'vue-router'
 import ImagesPage from '../views/ImagesPage.vue'
 import VideosPage from '../views/VideosPage.vue'
 import UploadPage from '../views/UploadPage.vue'
+import EditPage from '../views/EditPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', redirect: '/images' },
-    { path: '/images', name: 'images', component: ImagesPage, meta: { tab: true } },
-    { path: '/videos', name: 'videos', component: VideosPage, meta: { tab: true } },
+    { path: '/images', name: 'images', component: ImagesPage },
+    { path: '/videos', name: 'videos', component: VideosPage },
     {
       path: '/upload',
       name: 'upload',
       component: UploadPage,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: '/edit',
+      name: 'edit',
+      component: EditPage,
       meta: { requiresAdmin: true },
     },
   ],

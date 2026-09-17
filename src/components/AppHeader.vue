@@ -3,29 +3,48 @@
     <template #left>
       <div class="header-left">
         <img class="header-logo" src="/logo.png" alt="logo" />
-        <button
-          v-if="admin"
-          type="button"
-          class="admin-badge"
-          @click="showAdminMenu = true"
-        >
-          管理中
+        <button v-if="admin" type="button" class="admin-badge" @click="showAdminMenu = true">
+          管理员
         </button>
       </div>
     </template>
+
+    <template #title>
+      <div class="type-switch">
+        <button
+          type="button"
+          class="type-switch-item"
+          :class="{ active: type === 'image' }"
+          @click="switchType('image')"
+        >
+          图片
+        </button>
+        <button
+          type="button"
+          class="type-switch-item"
+          :class="{ active: type === 'video' }"
+          @click="switchType('video')"
+        >
+          视频
+        </button>
+      </div>
+    </template>
+
     <template #right>
       <div class="header-right">
-        <van-icon
+        <button
           v-if="admin"
-          name="plus"
-          size="20"
-          class="upload-icon"
+          type="button"
+          class="header-btn header-btn-add"
+          aria-label="上传"
           @click="$emit('upload')"
-        />
-        <div class="filter-trigger" @click="showFilter = true">
-          <span class="current-category">{{ currentLabel }}</span>
-          <van-icon name="filter-o" size="18" />
-        </div>
+        >
+          <van-icon name="plus" size="14" />
+        </button>
+        <button type="button" class="header-btn header-btn-filter" @click="showFilter = true">
+          <span class="filter-label">{{ currentLabel }}</span>
+          <van-icon name="arrow-down" size="11" />
+        </button>
       </div>
     </template>
   </van-nav-bar>
@@ -49,6 +68,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   IMAGE_CATEGORIES,
   VIDEO_CATEGORIES,
@@ -62,6 +82,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['filter', 'upload', 'exit-admin'])
+const router = useRouter()
 
 const showFilter = ref(false)
 const showAdminMenu = ref(false)
@@ -95,6 +116,11 @@ const adminActions = [
 
 const currentLabel = computed(() => categoryLabel(props.type, currentCategory.value))
 
+function switchType(nextType) {
+  if (nextType === props.type) return
+  router.replace({ name: nextType === 'video' ? 'videos' : 'images' })
+}
+
 function onSelect(action) {
   currentCategory.value = action.value
   emit('filter', action.value)
@@ -121,7 +147,7 @@ function onAdminSelect(action) {
 .admin-badge {
   border: none;
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 3px 8px;
   font-size: 11px;
   line-height: 1.4;
   color: #c8853f;
@@ -129,28 +155,76 @@ function onAdminSelect(action) {
   cursor: pointer;
 }
 
+.type-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 999px;
+  background: #f3eee6;
+}
+
+.type-switch-item {
+  border: none;
+  min-width: 52px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1;
+  color: #8a8a80;
+  background: transparent;
+  cursor: pointer;
+}
+
+.type-switch-item.active {
+  color: #1f2421;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(31, 36, 33, 0.08);
+}
+
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
-.upload-icon {
-  color: #1f2421;
-}
-
-.filter-trigger {
-  display: flex;
+.header-btn {
+  border: none;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
 }
 
-.current-category {
-  max-width: 88px;
+.header-btn:active {
+  opacity: 0.72;
+}
+
+.header-btn-add {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+  background: #1f2421;
+}
+
+.header-btn-filter {
+  max-width: 108px;
+  height: 26px;
+  gap: 3px;
+  padding: 0 8px;
+  border-radius: 999px;
+  color: #5f5a52;
+  background: #f3eee6;
+}
+
+.filter-label {
+  max-width: 72px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8a8a80;
-  font-size: 14px;
+  font-size: 12px;
+  line-height: 1;
 }
 </style>

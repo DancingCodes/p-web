@@ -16,5 +16,5 @@ export const VIDEO_CATEGORIES = [
 
 export function categoryLabel(type, category) {
   const list = type === 'video' ? VIDEO_CATEGORIES : IMAGE_CATEGORIES
-  return list.find((item) => item.value === category)?.name || '全部'
+  return list.find((item) => item.value === category).name
 }

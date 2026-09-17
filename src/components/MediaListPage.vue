@@ -1,6 +1,13 @@
 <template>
   <div class="media-page">
-    <AppHeader :admin="isAdmin" :type="mediaType" :category="category" @filter="onFilterChange" @upload="goUpload" @exit-admin="exitAdmin" />
+    <AppHeader
+      :admin="isAdmin"
+      :type="mediaType"
+      :category="category"
+      @filter="onFilterChange"
+      @upload="goUpload"
+      @exit-admin="exitAdmin"
+    />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
@@ -9,10 +16,7 @@
         :finished-text="items.length ? '没有更多了' : ''"
         @load="loadMore"
       >
-        <van-empty
-          v-if="!items.length && !loading && !refreshing"
-          :description="emptyText"
-        />
+        <van-empty v-if="!items.length && !loading && !refreshing" :description="emptyText" />
 
         <div v-else class="masonry-grid">
           <MediaCard
@@ -22,6 +26,7 @@
             :type="mediaType"
             :admin="isAdmin"
             @click="openPreview(item)"
+            @edit="goEdit(item)"
             @delete="handleDelete(item)"
           />
         </div>
@@ -30,20 +35,9 @@
 
     <div v-if="!isAdmin" class="admin-trigger" @click="showAdminKey = true" />
 
-    <van-dialog
-      v-model:show="showAdminKey"
-      title="Admin Key"
-      show-cancel-button
-      :before-close="beforeAdminClose"
-    >
+    <van-dialog v-model:show="showAdminKey" title="Admin Key" show-cancel-button :before-close="beforeAdminClose">
       <div class="admin-dialog-body">
-        <van-field
-          v-model="keyInput"
-          type="password"
-          placeholder="Key"
-          clearable
-          :disabled="verifying"
-        />
+        <van-field v-model="keyInput" type="password" placeholder="Key" clearable :disabled="verifying" />
       </div>
     </van-dialog>
 
@@ -55,14 +49,7 @@
       position="center"
       :style="{ width: '92%', background: '#000' }"
     >
-      <video
-        v-if="currentVideo"
-        class="video-player"
-        :src="currentVideo.url"
-        controls
-        autoplay
-        playsinline
-      />
+      <video v-if="currentVideo" class="video-player" :src="currentVideo.url" controls autoplay playsinline />
     </van-popup>
 
     <div
@@ -122,6 +109,13 @@ function goUpload() {
   })
 }
 
+function goEdit(item) {
+  router.push({
+    name: 'edit',
+    query: { type: props.mediaType, id: item.id },
+  })
+}
+
 function exitAdmin() {
   clearAdminKey()
   adminKey.value = ''
@@ -131,9 +125,11 @@ function exitAdmin() {
 const items = ref([])
 const loading = ref(false)
 const refreshing = ref(false)
+const fetching = ref(false)
 const pageNo = ref(1)
 const hasMore = ref(true)
 const category = ref('all')
+const seenListVersion = ref(listVersion.value)
 
 const adminKey = ref(getAdminKey())
 const showAdminKey = ref(false)
@@ -154,6 +150,17 @@ watch(previewImage, (value) => {
   document.body.style.overflow = value ? 'hidden' : ''
 })
 
+watch(listVersion, (version) => {
+  seenListVersion.value = version
+  resetAndReload()
+})
+
+onActivated(() => {
+  if (seenListVersion.value !== listVersion.value) {
+    seenListVersion.value = listVersion.value
+    resetAndReload()
+  }
+})
 
 function onFilterChange(nextCategory) {
   category.value = nextCategory
@@ -164,23 +171,42 @@ async function resetAndReload() {
   pageNo.value = 1
   hasMore.value = true
   items.value = []
+  fetching.value = false
   loading.value = true
   await loadMore()
 }
 
 async function loadMore() {
+  if (fetching.value) return
+  if (!hasMore.value) {
+    loading.value = false
+    return
+  }
+
+  fetching.value = true
+  const requestedPage = pageNo.value
+
   try {
     const res =
       props.mediaType === 'video'
-        ? await getVideoList(pageNo.value, 20, category.value)
-        : await getImageList(pageNo.value, 20, category.value)
+        ? await getVideoList(requestedPage, 20, category.value)
+        : await getImageList(requestedPage, 20, category.value)
     const { list, total } = res.data.data
-    items.value.push(...list)
-    pageNo.value += 1
+    const rows = Array.isArray(list) ? list : []
+
+    if (requestedPage === 1) {
+      items.value = rows
+    } else {
+      const existed = new Set(items.value.map((item) => item.id))
+      items.value.push(...rows.filter((item) => !existed.has(item.id)))
+    }
+
+    pageNo.value = requestedPage + 1
     hasMore.value = items.value.length < total
   } catch {
     hasMore.value = false
   } finally {
+    fetching.value = false
     loading.value = false
   }
 }
@@ -189,6 +215,7 @@ async function onRefresh() {
   pageNo.value = 1
   hasMore.value = true
   items.value = []
+  fetching.value = false
   try {
     await loadMore()
   } finally {
@@ -300,7 +327,7 @@ function handleDelete(item) {
 .media-page {
   min-height: 100vh;
   background: #f6f1e8;
-  padding: 12px 12px 64px;
+  padding: 12px 12px 24px;
   box-sizing: border-box;
 }
 
