@@ -1,21 +1,60 @@
 <template>
-  <div
-    class="rounded-xl overflow-hidden cursor-pointer bg-white mb-2.5 shadow-sm break-inside-avoid relative"
-    @click="$emit('click')"
-  >
-    <img :src="image.url" :alt="image.name" loading="lazy" class="w-full block" />
-    <div class="absolute inset-x-0 bottom-0 px-3 py-2 flex items-center justify-between bg-gradient-to-t from-black/60 to-transparent">
-      <span class="text-xs text-white truncate">{{ image.name }}</span>
-      <div
-        v-if="admin"
-        class="text-xs text-white bg-white/20 rounded px-2 py-0.5 cursor-pointer shrink-0 ml-2"
-        @click.stop="$emit('delete')"
-      >Del</div>
+  <div class="masonry-card" @click="$emit('click')">
+    <div class="image-wrapper">
+      <img
+        :src="image.url"
+        :alt="image.name"
+        loading="lazy"
+        @load="$emit('image-loaded')"
+      />
+    </div>
+    <div v-if="admin" class="card-footer">
+      <div class="delete-btn" @click.stop="$emit('delete')">Del</div>
     </div>
   </div>
 </template>
 
 <script setup>
 defineProps({ image: Object, admin: Boolean })
-defineEmits(['click', 'delete'])
+defineEmits(['click', 'delete', 'image-loaded'])
 </script>
+
+<style lang="scss" scoped>
+.masonry-card {
+  border-radius: 12px;
+  cursor: pointer;
+  background: #FBF7EF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  position: relative;
+  margin-bottom: 12px;
+  border: 0.5px solid rgba(0, 0, 0, 0.04);
+  padding: 8px;
+  -webkit-tap-highlight-color: transparent;
+
+  .image-wrapper {
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  img {
+    width: 100%;
+    display: block;
+  }
+
+  .card-footer {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+
+    .delete-btn {
+      font-size: 12px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+  }
+}
+</style>
