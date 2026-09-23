@@ -1,33 +1,17 @@
 <template>
   <div class="media-page">
-    <AppHeader
-      :admin="isAdmin"
-      :type="mediaType"
-      :category="category"
-      @filter="onFilterChange"
-      @upload="goUpload"
-      @exit-admin="exitAdmin"
-    />
+    <AppHeader :admin="isAdmin" :type="mediaType" :category="category" @filter="onFilterChange" @upload="goUpload"
+      @exit-admin="exitAdmin" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-      <van-list
-        v-model:loading="loading"
-        :finished="!hasMore"
-        :finished-text="items.length ? '没有更多了' : ''"
-        @load="loadMore"
-      >
+      <van-list v-model:loading="loading" :finished="!hasMore" :finished-text="items.length ? '没有更多了' : ''"
+        @load="loadMore">
         <van-empty v-if="!items.length && !loading && !refreshing" :description="emptyText" />
 
         <masonry-wall v-else :items="items" :column-width="columnWidth" :gap="gap" class="masonry-grid">
           <template #default="{ item }">
-            <MediaCard
-              :item="item"
-              :type="mediaType"
-              :admin="isAdmin"
-              @click="openPreview(item)"
-              @edit="goEdit(item)"
-              @delete="handleDelete(item)"
-            />
+            <MediaCard :item="item" :type="mediaType" :admin="isAdmin" @click="openPreview(item)" @edit="goEdit(item)"
+              @delete="handleDelete(item)" />
           </template>
         </masonry-wall>
       </van-list>
@@ -41,24 +25,13 @@
       </div>
     </van-dialog>
 
-    <van-popup
-      v-if="mediaType === 'video'"
-      v-model:show="showVideoPlayer"
-      closeable
-      round
-      position="center"
-      :style="{ width: '92%', background: '#000' }"
-    >
+    <van-popup v-if="mediaType === 'video'" v-model:show="showVideoPlayer" closeable round position="center"
+      :style="{ width: '92%', background: '#000' }">
       <video v-if="currentVideo" class="video-player" :src="currentVideo.url" controls autoplay playsinline />
     </van-popup>
 
-    <div
-      v-if="mediaType === 'image' && previewImage"
-      ref="previewRef"
-      class="image-preview"
-      @touchstart.passive="onPreviewTouchStart"
-      @touchend.passive="onPreviewTouchEnd"
-    >
+    <div v-if="mediaType === 'image' && previewImage" ref="previewRef" class="image-preview"
+      @touchstart.passive="onPreviewTouchStart" @touchend.passive="onPreviewTouchEnd">
       <div class="image-preview-bar">
         <span class="image-preview-index">{{ previewIndex + 1 }} / {{ items.length }}</span>
         <button type="button" class="image-preview-close" aria-label="关闭" @click="closePreview">
@@ -324,7 +297,7 @@ function handleDelete(item) {
       }
       showSuccessToast('已删除')
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 </script>
 
@@ -336,10 +309,6 @@ function handleDelete(item) {
   box-sizing: border-box;
   margin: 0 auto;
   max-width: 1200px;
-}
-
-.masonry-grid {
-  /* 移除CSS column布局 */
 }
 
 @media (min-width: 768px) {
@@ -420,5 +389,11 @@ function handleDelete(item) {
   display: block;
   width: 100%;
   height: auto;
+}
+
+@media (min-width: 768px) {
+  .image-preview-body img {
+    width: 50%;
+  }
 }
 </style>
