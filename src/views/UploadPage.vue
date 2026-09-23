@@ -218,7 +218,9 @@ async function onSubmit() {
 .upload-page {
   min-height: 100vh;
   background: #f6f1e8;
-  }
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 .upload-group {
   margin-top: 12px;

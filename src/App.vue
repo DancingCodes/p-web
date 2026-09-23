@@ -15,5 +15,6 @@ const cachedPages = ['ImagesPage', 'VideosPage', 'UploadPage']
 <style scoped>
 .app-shell {
   min-height: 100vh;
+  background: #f6f1e8;
 }
 </style>

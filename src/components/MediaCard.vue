@@ -56,7 +56,6 @@ const displayName = computed(() => {
   break-inside: avoid;
   -webkit-column-break-inside: avoid;
   page-break-inside: avoid;
-  margin-bottom: 12px;
   padding: 8px;
   overflow: hidden;
   border-radius: 14px;

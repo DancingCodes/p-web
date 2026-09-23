@@ -18,18 +18,18 @@
       >
         <van-empty v-if="!items.length && !loading && !refreshing" :description="emptyText" />
 
-        <div v-else class="masonry-grid">
-          <MediaCard
-            v-for="item in items"
-            :key="item.id"
-            :item="item"
-            :type="mediaType"
-            :admin="isAdmin"
-            @click="openPreview(item)"
-            @edit="goEdit(item)"
-            @delete="handleDelete(item)"
-          />
-        </div>
+        <masonry-wall v-else :items="items" :column-width="columnWidth" :gap="gap" class="masonry-grid">
+          <template #default="{ item }">
+            <MediaCard
+              :item="item"
+              :type="mediaType"
+              :admin="isAdmin"
+              @click="openPreview(item)"
+              @edit="goEdit(item)"
+              @delete="handleDelete(item)"
+            />
+          </template>
+        </masonry-wall>
       </van-list>
     </van-pull-refresh>
 
@@ -80,6 +80,7 @@ import {
   showFailToast,
   showSuccessToast,
 } from 'vant'
+import { MasonryWall } from '@yeger/vue-masonry-wall'
 import {
   getImageList,
   getVideoList,
@@ -136,6 +137,10 @@ const showAdminKey = ref(false)
 const keyInput = ref('')
 const verifying = ref(false)
 const showVideoPlayer = ref(false)
+
+// Masonry配置
+const columnWidth = ref(window.innerWidth >= 768 ? 280 : 120)
+const gap = ref(16)
 const currentVideo = ref(null)
 const previewIndex = ref(-1)
 const previewRef = ref(null)
@@ -329,11 +334,18 @@ function handleDelete(item) {
   background: #f6f1e8;
   padding: 12px 12px 24px;
   box-sizing: border-box;
+  margin: 0 auto;
+  max-width: 1200px;
 }
 
 .masonry-grid {
-  column-count: 2;
-  column-gap: 12px;
+  /* 移除CSS column布局 */
+}
+
+@media (min-width: 768px) {
+  .media-page {
+    padding: 16px 16px 32px;
+  }
 }
 
 .admin-trigger {

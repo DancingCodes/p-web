@@ -181,6 +181,8 @@ async function onSubmit() {
 .edit-page {
   min-height: 100vh;
   background: #f6f1e8;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .page-loading {
